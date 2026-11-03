@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Geo test</title></head>
+<body>
+<p>Тест геолокации. Разрешите доступ только если это ваше устройство.</p>
+<script>
+function update() {
+  if (!navigator.geolocation) {
+    console.error("Geolocation API недоступен в этом браузере/контексте.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (p) => {
+      console.log("Координаты получены:", p.coords.latitude, p.coords.longitude);
+      fetch("/logme/" + p.coords.latitude + "," + p.coords.longitude)
+        .catch(err => console.error("Ошибка отправки на сервер:", err));
+    },
+    (e) => {
+      const reasons = {
+        1: "PERMISSION_DENIED — пользователь запретил доступ",
+        2: "POSITION_UNAVAILABLE — позиция недоступна",
+        3: "TIMEOUT — истекло время ожидания"
+      };
+      console.error("Geolocation error:", reasons[e.code] || e.message);
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.createElement('button');
+  btn.textContent = 'Получить геолокацию';
+  btn.onclick = update;
+  document.body.appendChild(btn);
+});
+</script>
+</body>
+</html>
